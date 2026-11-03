@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pour / Play</title>
+<meta name="description" content="POUR / PLAY - specialty coffee. Wake the beans, let it bloom, sip the unexpected.">
+<meta name="theme-color" content="#efe4d2">
+<meta property="og:title" content="POUR / PLAY">
+<meta property="og:description" content="Specialty coffee, roasted in small batches. Wake the beans, let it bloom, sip the unexpected.">
+<meta property="og:image" content="frames/000.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='32' cy='32' rx='20' ry='27' fill='%235a3522' transform='rotate(-20 32 32)'/%3E%3Cpath d='M26 9c10 12 2 30 12 46' stroke='%23e9c79a' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="frames/000.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Condensed:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:wght@400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -119,22 +126,55 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
   .m-make{position:absolute;left:max(18px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 74px);z-index:2;opacity:0}
   .m-make .mini{font-size:10px;display:block;margin-bottom:6px}
   .m-make h3{font-family:var(--cond);font-weight:500;text-transform:uppercase;font-size:clamp(26px,8vw,36px);line-height:1.05}
+  .m-dots i{cursor:pointer}
   .m-dots{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:34%;z-index:4;display:flex;flex-direction:column;gap:9px}
   .m-dots i{width:6px;height:6px;border-radius:50%;border:1.5px solid var(--ink);opacity:.55;transition:.3s}
   .m-dots i.on{opacity:1;background:var(--ink)}
-  .m-menu{position:absolute;inset:0;z-index:10;background:var(--cream);display:flex;flex-direction:column;gap:6px;
-    padding:calc(env(safe-area-inset-top,0px) + 90px) max(28px,env(safe-area-inset-right,0px)) 40px max(28px,env(safe-area-inset-left,0px))}
-  .m-menu[hidden]{display:none}
-  .m-menu a{font-family:"Libre Caslon Text",Georgia,serif;font-size:30px;color:var(--ink);text-decoration:none;padding:6px 0;border-bottom:1px solid rgba(27,23,20,.12)}
-  .m-menu a.on{font-style:italic}
-  .m-close{position:absolute;right:max(18px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 14px);width:40px;height:40px;border-radius:50%;
-    border:0;background:var(--ink);color:#f4ede3;font-size:22px;line-height:1;cursor:pointer}
 }
 @media (max-width:760px) and (max-height:620px){ .m-p{display:none} }
+
+/* shared overlay menu (desktop + phone) */
+.menu-ov{position:fixed;inset:0;z-index:50;background:var(--cream);display:flex;flex-direction:column;justify-content:center;gap:4px;
+  padding:calc(env(safe-area-inset-top,0px) + 70px) max(28px,env(safe-area-inset-right,0px)) 40px max(28px,env(safe-area-inset-left,0px));
+  opacity:0;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility .35s}
+.menu-ov.open{opacity:1;pointer-events:auto;visibility:visible}
+.menu-ov .in{width:min(560px,100%);margin:0 auto;display:flex;flex-direction:column}
+.menu-ov a{font-family:"Libre Caslon Text",Georgia,serif;font-size:clamp(28px,4.2vw,46px);color:var(--ink);text-decoration:none;padding:8px 0;
+  border-bottom:1px solid rgba(27,23,20,.12);transform:translateY(12px);opacity:0;transition:transform .5s cubic-bezier(.2,.7,.2,1),opacity .5s}
+.menu-ov.open a{transform:none;opacity:1}
+.menu-ov a:hover{font-style:italic}
+.menu-ov .close{position:absolute;right:max(22px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 18px);width:46px;height:46px;border-radius:50%;
+  border:0;background:var(--ink);color:#f4ede3;font-size:24px;line-height:1;cursor:pointer}
+.menu-ov .foot{margin-top:28px;font-size:13px;color:var(--ink-2);letter-spacing:.04em}
+#loader{position:fixed;inset:0;z-index:60;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity .6s ease, visibility .6s}
+#loader.done{opacity:0;visibility:hidden}
+#loader .lg{font-family:"Libre Caslon Text",Georgia,serif;font-size:clamp(26px,3vw,40px);letter-spacing:.01em}
+#loader .bar{width:min(220px,50vw);height:2px;background:rgba(27,23,20,.12);overflow:hidden;border-radius:2px}
+#loader .bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .25s ease}
+#loader .pc{font-size:11px;letter-spacing:.14em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+a,button{cursor:pointer}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:999px}
+.rdots i,.hdots i{cursor:pointer;pointer-events:auto}
+.nav a{transition:opacity .2s}.nav a:hover{opacity:.6}
+.btn,.cta,.m-cta{transition:transform .2s ease, background-color .2s}
+.btn:hover,.cta:hover,.m-cta:hover{transform:translateY(-1px)}
+.btn.dark:hover,.cta:hover{background:#3a2f27}
+.btn b{transition:transform .2s}.btn:hover b{transform:translateX(3px)}
+@media (prefers-reduced-motion:reduce){ .menu-ov,.menu-ov a,#loader,.m-sec{transition:none!important} }
 </style>
 </head>
 <body>
 <div id="scroller"></div>
+<div id="loader" aria-live="polite"><div class="lg">POUR / PLAY</div><div class="bar"><i id="lbar"></i></div><div class="pc" id="lpc">0%</div></div>
+<nav class="menu-ov" id="menu" aria-hidden="true">
+  <button class="close" id="mclose" aria-label="Close menu">×</button>
+  <div class="in">
+    <a href="#" data-go="0">Home</a><a href="#" data-go="0">Beans</a><a href="#" data-go="98">Roasts &amp; Coffee</a>
+    <a href="#" data-go="140">Collection</a><a href="#" data-go="238">Community</a><a href="#" data-go="238">Blog</a><a href="#" data-go="238">Login</a>
+    <div class="foot">Specialty coffee · roasted in small batches</div>
+  </div>
+</nav>
 
 <div id="m">
   <canvas id="mcv"></canvas>
@@ -148,28 +188,28 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
     <div class="m-card cta2" data-d="3" data-r="56,78.6,18,8.3"><h4>Find your cup</h4><span>→</span></div>
   </div>
   <header class="m-top">
-    <a href="#" class="m-logo">POUR / PLAY</a>
-    <div class="m-right"><a href="#" class="m-cta">ORDER NOW</a>
-      <button class="m-burger" id="mopen" aria-label="Open menu"><span></span><span></span><span></span></button></div>
+    <a href="#" data-go="0" class="m-logo">POUR / PLAY</a>
+    <div class="m-right"><a href="#" data-go="238" class="m-cta">ORDER NOW</a>
+      <button class="m-burger" data-open-menu aria-label="Open menu"><span></span><span></span><span></span></button></div>
   </header>
-  <div class="m-dots"><i class="on"></i><i></i><i></i></div>
+  <div class="m-dots"><i class="on" data-go="0"></i><i data-go="98"></i><i data-go="238"></i></div>
   <div class="m-panel">
     <section class="m-sec on">
       <div class="eyebrow">Wake the beans</div>
       <h1 class="m-h">Wake the<br>beans</h1>
       <p class="m-p">Specialty coffee, roasted in small batches to unlock bold aroma, deep flavor and the perfect start to every day.</p>
-      <a href="#" class="btn dark m-btn">Shop beans <b>→</b></a>
+      <a href="#" data-go="98" class="btn dark m-btn">Shop beans <b>→</b></a>
     </section>
     <section class="m-sec">
       <div style="display:flex;align-items:baseline;gap:12px"><span class="m-num">2.</span><span class="mini">Let it bloom</span></div>
       <h2 class="m-h">Let it<br>bloom</h2>
       <p class="m-p">Fresh grounds, hot water and a moment of patience. The bloom releases trapped gases for a sweeter, cleaner cup.</p>
-      <a href="#" class="btn line m-btn">Brew guide <b>→</b></a>
+      <a href="#" data-go="140" class="btn line m-btn">Brew guide <b>→</b></a>
     </section>
     <section class="m-sec">
       <h2 class="m-h f">Floral</h2>
       <p class="m-p">Light roasts with jasmine, bergamot and stone-fruit notes, slowly dripped into the carafe drop by drop.</p>
-      <a href="#" class="btn dark m-btn">Shop now <b>→</b></a>
+      <a href="#" data-go="238" class="btn dark m-btn">Shop now <b>→</b></a>
     </section>
     <section class="m-sec">
       <div class="mini">Brew 3</div>
@@ -178,15 +218,11 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
       <a href="#" class="btn line m-btn">Find your cup <b>→</b></a>
     </section>
   </div>
-  <nav class="m-menu" id="mmenu" hidden>
-    <button class="m-close" id="mclose" aria-label="Close menu">×</button>
-    <a href="#" class="on">Home</a><a href="#">Beans</a><a href="#">Roasts &amp; Coffee</a><a href="#">Collection</a><a href="#">Community</a><a href="#">Blog</a><a href="#">Login</a>
-  </nav>
 </div>
 
 
 <div id="stage">
-  <canvas id="cv" width="1280" height="800"></canvas>
+  <canvas id="cv"></canvas>
   <div id="space">
 
     <div id="layer">
@@ -194,21 +230,21 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
       <div class="abs eyebrow" style="left:10.3%;top:16.4%">Wake the beans</div>
       <h1 class="abs big" style="left:10.1%;top:20.6%;font-size:8.6cqw;letter-spacing:-.025em;line-height:.89">Wake<br>The<br>Beans</h1>
       <p class="abs p" style="left:10.3%;top:59.9%;width:25.3cqw">Specialty coffee, roasted in small batches to unlock bold aroma, deep flavor and the perfect start to every day.</p>
-      <a href="#" class="abs btn dark" style="left:10.3%;top:71%;width:11.6cqw;height:5.2%">Shop beans <b>→</b></a>
+      <a href="#" data-go="98" class="abs btn dark" style="left:10.3%;top:71%;width:11.6cqw;height:5.2%">Shop beans <b>→</b></a>
       <div class="abs arrow">‹</div>
-      <div class="abs hdots"><i></i><i></i><i></i></div>
+      <div class="abs hdots"><i data-go="0"></i><i data-go="98"></i><i data-go="140"></i></div>
 
       <!-- 2. LET IT BLOOM -->
       <div class="abs" style="left:10%;top:95.2%;font-family:var(--serif);font-size:4.4cqw;line-height:1">2.</div>
       <div class="abs mini" style="left:10%;top:104.6%">Let it bloom</div>
       <h2 class="abs big" style="left:9.9%;top:108.8%;font-size:7.2cqw;letter-spacing:-.03em;line-height:.95">Let it<br>Bloom</h2>
       <p class="abs p" style="left:10%;top:132.6%;width:25cqw">Fresh grounds, hot water and a moment of patience. The bloom releases trapped gases for a sweeter, cleaner cup.</p>
-      <a href="#" class="abs btn line" style="left:10%;top:144%;width:11cqw;height:5%">Brew guide <b>→</b></a>
+      <a href="#" data-go="140" class="abs btn line" style="left:10%;top:144%;width:11cqw;height:5%">Brew guide <b>→</b></a>
 
       <!-- 3. FLORAL -->
       <h2 class="abs" style="left:9.75%;top:160.8%;font-family:var(--serif);font-size:7.3cqw;line-height:1;letter-spacing:-.01em">Floral</h2>
       <p class="abs p" style="left:9.75%;top:173.2%;width:25.5cqw">Light roasts with jasmine, bergamot and stone-fruit notes, slowly dripped into the carafe drop by drop.</p>
-      <a href="#" class="abs btn dark" style="left:9.75%;top:183.4%;width:11.5cqw;height:5%">Shop now <b>→</b></a>
+      <a href="#" data-go="238" class="abs btn dark" style="left:9.75%;top:183.4%;width:11.5cqw;height:5%">Shop now <b>→</b></a>
 
       <!-- 4. SIP THE UNEXPECTED -->
       <div class="abs mini" style="left:9.4%;top:214.2%">Brew 3</div>
@@ -233,148 +269,196 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 
     <!-- NAV -->
     <div class="abs navbg"></div>
-    <a href="#" class="abs logo">POUR / PLAY</a>
+    <a href="#" data-go="0" class="abs logo">POUR / PLAY</a>
     <nav class="abs nav">
-      <a href="#" class="on" style="left:34.6%">Home</a>
-      <a href="#" style="left:40.4%">Beans</a>
-      <a href="#" style="left:48.3%">Roasts &amp; Coffee</a>
-      <a href="#" style="left:57.6%">Collection</a>
-      <a href="#" style="left:65.2%">Community</a>
-      <a href="#" style="left:71.8%">Blog</a>
+      <a href="#" class="on" data-go="0" data-sec="0" style="left:34.6%">Home</a>
+      <a href="#" data-go="0" style="left:40.4%">Beans</a>
+      <a href="#" data-go="98" data-sec="1" style="left:48.3%">Roasts &amp; Coffee</a>
+      <a href="#" data-go="140" data-sec="2" style="left:57.6%">Collection</a>
+      <a href="#" data-go="238" data-sec="3" style="left:65.2%">Community</a>
+      <a href="#" data-go="238" style="left:71.8%">Blog</a>
       <a href="#" style="left:76.9%">Login</a>
     </nav>
-    <a href="#" class="abs cta">ORDER NOW</a>
-    <div class="abs rdots"><i class="on"></i><i></i><i></i></div>
-    <button class="abs menu" aria-label="Menu"><span></span><span></span><span></span></button>
+    <a href="#" data-go="238" class="abs cta">ORDER NOW</a>
+    <div class="abs rdots"><i class="on" data-go="0"></i><i data-go="98"></i><i data-go="238"></i></div>
+    <button class="abs menu" data-open-menu aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </div>
 
 <script>
 (() => {
-  const N = 239, cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-  const imgs = new Array(N);
-  let loaded = 0;
-  for (let i = 0; i < N; i++) {
-    const im = new Image();
-    im.decoding = 'async';
-    im.src = 'frames/' + String(i).padStart(3, '0') + '.webp';
-    im.onload = () => { loaded++; if (i === 0) { lastDrawn = -1; draw(cur); } };
-    imgs[i] = im;
-  }
-  // page-scroll offset of the text layer (in screen heights) per video frame
-  const KF = [[0,0],[48,0],[60,-.17],[88,-.70],[104,-.75],[136,-1.26],[144,-1.30],[172,-1.93],[238,-1.98]];
-  const offAt = f => {
-    for (let k = 0; k < KF.length - 1; k++) {
-      const [a, oa] = KF[k], [b, ob] = KF[k + 1];
-      if (f >= a && f <= b) { const t = (f - a) / (b - a); const e = t * t * (3 - 2 * t); return oa + (ob - oa) * e; }
-    }
-    return KF[KF.length - 1][1];
-  };
+  const N = 239;
+  const src = i => 'frames/' + String(i).padStart(3, '0') + '.webp';
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const ease = t => 1 - Math.pow(1 - t, 3);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- frame loading: coarse-to-fine, limited concurrency ---------------- */
+  const imgs = new Array(N).fill(null);      // decoded <img> (fallback)
+  const bmps = new Map();                    // ImageBitmaps kept around the playhead (no decode jank)
+  const order = [];
+  { const seen = new Set(); for (const step of [24, 8, 4, 2, 1]) for (let i = 0; i < N; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+    if (!seen.has(N - 1)) order.splice(1, 0, N - 1); }
+  let loaded = 0, qi = 0, active = 0, ready = false;
+  const lbar = document.getElementById('lbar'), lpc = document.getElementById('lpc'), loader = document.getElementById('loader');
+  function pump() {
+    while (active < 6 && qi < order.length) {
+      const i = order[qi++]; active++;
+      const im = new Image(); im.decoding = 'async'; im.src = src(i);
+      const done = () => { active--; loaded++; progress(); pump(); };
+      im.decode().then(() => { imgs[i] = im; dirty = true; done(); }).catch(() => { im.onload = () => { imgs[i] = im; dirty = true; }; done(); });
+    }
+  }
+  function progress() {
+    const need = Math.min(N, 40);             // first two coarse passes are enough to start
+    const p = Math.min(1, loaded / need);
+    lbar.style.width = (p * 100).toFixed(0) + '%'; lpc.textContent = Math.round(p * 100) + '%';
+    if (!ready && p >= 1) { ready = true; loader.classList.add('done'); }
+  }
+  setTimeout(() => { if (!ready) { ready = true; loader.classList.add('done'); } }, 6000);
+  pump();
+
+  const nearest = i => { for (let d = 0; d < N; d++) { if (imgs[i - d]) return i - d; if (imgs[i + d]) return i + d; } return -1; };
+  const frameSrc = i => bmps.get(i) || imgs[i];
+  // keep decoded bitmaps for a window around the playhead
+  let bmpBusy = 0;
+  function warm(center) {
+    if (typeof createImageBitmap !== 'function') return;
+    const lo = Math.floor(center) - 10, hi = Math.ceil(center) + 14;
+    for (const k of bmps.keys()) if (k < lo - 12 || k > hi + 12) { const b = bmps.get(k); bmps.delete(k); b.close && b.close(); }
+    for (let i = Math.max(0, lo); i <= Math.min(N - 1, hi) && bmpBusy < 3; i++) {
+      if (bmps.has(i) || !imgs[i]) continue;
+      bmps.set(i, null); bmpBusy++;
+      createImageBitmap(imgs[i]).then(b => { bmps.set(i, b); bmpBusy--; }).catch(() => { bmps.delete(i); bmpBusy--; });
+    }
+    for (const [k, v] of bmps) if (v === null && !imgs[k]) bmps.delete(k);
+  }
+  const usable = i => { const b = bmps.get(i); return b || imgs[i]; };
+
+  /* draws frame f (fractional) with a soft blend into the next frame */
+  function paint(ctx, f, sx, sy, sw, sh, W, H) {
+    const a = Math.floor(f), b = Math.min(N - 1, a + 1), t = f - a;
+    let ia = usable(a) ? a : nearest(a);
+    if (ia < 0) return false;
+    ctx.globalAlpha = 1;
+    ctx.drawImage(usable(ia), sx, sy, sw, sh, 0, 0, W, H);
+    if (t > 0.02 && ia === a && usable(b)) { ctx.globalAlpha = t; ctx.drawImage(usable(b), sx, sy, sw, sh, 0, 0, W, H); ctx.globalAlpha = 1; }
+    return true;
+  }
+  const dims = () => { const i = nearest(0); const im = imgs[i]; return im ? [im.naturalWidth, im.naturalHeight] : [1440, 900]; };
+
+  /* ---------------- shared state ---------------- */
+  const KF = [[0,0],[48,0],[60,-.17],[88,-.70],[104,-.75],[136,-1.26],[144,-1.30],[172,-1.93],[238,-1.98]];
+  const offAt = f => { for (let k = 0; k < KF.length - 1; k++) { const [a, oa] = KF[k], [b, ob] = KF[k + 1];
+    if (f >= a && f <= b) { const t = (f - a) / (b - a); return oa + (ob - oa) * t * t * (3 - 2 * t); } } return KF[KF.length - 1][1]; };
+  const secOf = f => f < 70 ? 0 : f < 122 ? 1 : f < 160 ? 2 : 3;
+  const dotOf = f => f < 70 ? 0 : f < 150 ? 1 : 2;
+  let cur = 0, target = 0, dirty = true, lastF = -1;
+
+  /* ---------------- desktop ---------------- */
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d', { alpha: false });
   const layer = document.getElementById('layer'), space = document.getElementById('space');
   const sec3 = document.getElementById('sec3'), make = document.getElementById('make');
-  const cards = [...document.querySelectorAll('.card')];
-  const dots = [...document.querySelectorAll('.rdots i')];
-  let cur = 0, target = 0, lastDrawn = -1;
-
-  function nearestLoaded(i) {
-    for (let d = 0; d < N; d++) {
-      if (imgs[i - d] && imgs[i - d].complete && imgs[i - d].naturalWidth) return imgs[i - d];
-      if (imgs[i + d] && imgs[i + d].complete && imgs[i + d].naturalWidth) return imgs[i + d];
-    }
-    return null;
+  const cards = [...document.querySelectorAll('.card')], dots = [...document.querySelectorAll('.rdots i')];
+  const navLinks = [...document.querySelectorAll('.nav a[data-sec]')];
+  let cvSize = '';
+  function sizeCanvas(c, w, h) {
+    const [IW] = dims(), dpr = Math.min(devicePixelRatio || 1, 2);
+    const k = Math.min(dpr, Math.max(1, IW * 1.25 / w));     // never draw far above the source resolution
+    const W = Math.round(w * k), H = Math.round(h * k), key = W + 'x' + H;
+    if (key !== c._k) { c.width = W; c.height = H; c._k = key; const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; return true; }
+    return false;
   }
-  // ---- phone layout ----
-  const mq = matchMedia('(max-width:760px), (max-aspect-ratio:4/5)');
-  const mcv = document.getElementById('mcv'), mctx = mcv.getContext('2d');
-  const msecs = [...document.querySelectorAll('.m-sec')], mdots = [...document.querySelectorAll('.m-dots i')];
-  const mchips = [...document.querySelectorAll('.m-card')], mmake = document.getElementById('mmake');
-  // horizontal focus (fraction of frame width) that keeps the coffee object centred, per frame
-  const CX = [[0,.52],[48,.53],[70,.60],[104,.64],[136,.66],[160,.58],[200,.53],[238,.53]];
-  const lerpKF = (K, f) => { for (let k = 0; k < K.length - 1; k++) { const [a, va] = K[k], [b, vb] = K[k + 1];
-    if (f >= a && f <= b) return va + (vb - va) * (f - a) / (b - a); } return K[K.length - 1][1]; };
-  let mLast = -1, mSize = '', mMap = null;
-  function drawMobile(f) {
-    const dpr = Math.min(devicePixelRatio || 1, 2), w = mcv.clientWidth, h = mcv.clientHeight;
-    const sz = w + 'x' + h;
-    if (sz !== mSize) { mcv.width = Math.round(w * dpr); mcv.height = Math.round(h * dpr); mSize = sz; mLast = -1; }
-    const i = clamp(Math.round(f), 0, N - 1);
-    if (i !== mLast) {
-      const im = nearestLoaded(i);
-      if (im) {
-        const IW = im.naturalWidth, IH = im.naturalHeight, ca = mcv.width / mcv.height;
-        let sh = IH * 0.94, sw = sh * ca;
-        if (sw > IW) { sw = IW; sh = sw / ca; }
-        const cx = lerpKF(CX, f) * IW;
-        const sx = clamp(cx - sw / 2, 0, IW - sw), sy = clamp(IH * 0.06, 0, IH - sh);
-        mctx.fillStyle = '#efe4d2'; mctx.fillRect(0, 0, mcv.width, mcv.height);
-        mctx.drawImage(im, sx, sy, sw, sh, 0, 0, mcv.width, mcv.height);
-        mLast = (im === imgs[i]) ? i : -1;
-        mMap = { sx, sy, sw, sh, IW, IH };
-      }
+  function drawDesktop(f) {
+    const changed = sizeCanvas(cv, cv.clientWidth, cv.clientHeight);
+    if (changed || dirty || Math.abs(f - lastF) > 0.003) {
+      const [IW, IH] = dims();
+      paint(ctx, f, 0, 0, IW, IH, cv.width, cv.height);
     }
-    const sec = f < 70 ? 0 : f < 122 ? 1 : f < 160 ? 2 : 3;
-    msecs.forEach((el, k) => el.classList.toggle('on', k === sec));
-    const d = f < 70 ? 0 : f < 150 ? 1 : 2;
-    mdots.forEach((el, k) => el.classList.toggle('on', k === d));
-    const m = ease(clamp((f - 176) / 16, 0, 1));
-    mmake.style.opacity = m; mmake.style.transform = `translateY(${(1 - m) * 14}px)`;
-    if (mMap) {
-      // place the cards at the same spot of the frame as on desktop (frames are the screen cropped ~1.2% per edge)
-      const kx = w / mMap.sw, ky = h / mMap.sh;
-      const toX = x => ((x / 100 - .011875) / .97 * mMap.IW - mMap.sx) * kx;
-      const toY = y => ((y / 100 - .012) / .978 * mMap.IH - mMap.sy) * ky;
-      const fs = .014 * (mMap.IW / .97) * kx;
-      mchips.forEach(c => {
-        const [x, y, cw, ch] = c.dataset.r.split(',').map(Number);
-        const t = ease(clamp((f - 184 - (+c.dataset.d) * 3.5) / 13, 0, 1));
-        const cwPx = toX(x + cw) - toX(x), lx = clamp(toX(x), 8, w - 8 - cwPx);
-        c.style.left = lx + 'px'; c.style.top = toY(y) + 'px';
-        c.style.width = cwPx + 'px'; c.style.height = (toY(y + ch) - toY(y)) + 'px';
-        c.style.fontSize = fs + 'px'; c.style.opacity = t;
-        c.style.transform = `translateY(${(1 - t) * 14}px) scale(${.94 + .06 * t})`;
-      });
-    }
-  }
-  const mmenu = document.getElementById('mmenu');
-  document.getElementById('mopen').addEventListener('click', () => { mmenu.hidden = false; });
-  document.getElementById('mclose').addEventListener('click', () => { mmenu.hidden = true; });
-
-  function draw(f) {
-    if (mq.matches) { drawMobile(f); return; }
-    const i = clamp(Math.round(f), 0, N - 1);
-    if (i !== lastDrawn) {
-      const im = nearestLoaded(i);
-      if (im) { ctx.drawImage(im, 0, 0, cv.width, cv.height); lastDrawn = (im === imgs[i]) ? i : -1; }
-    }
-    const H = space.clientHeight;
-    layer.style.transform = `translateY(${offAt(f) * H}px)`;
+    layer.style.transform = `translate3d(0,${(offAt(f) * space.clientHeight).toFixed(2)}px,0)`;
     const m = ease(clamp((f - 174) / 18, 0, 1));
     make.style.opacity = sec3.style.opacity = m;
     make.style.transform = `translateY(${(1 - m) * 1.5}cqw)`;
     cards.forEach(c => {
-      const d = +c.dataset.d, t = ease(clamp((f - 184 - d * 3.5) / 13, 0, 1));
-      c.style.opacity = t;
-      c.style.transform = `translateY(${(1 - t) * 3}cqw) scale(${.94 + .06 * t})`;
+      const t = ease(clamp((f - 184 - (+c.dataset.d) * 3.5) / 13, 0, 1));
+      c.style.opacity = t; c.style.transform = `translateY(${(1 - t) * 3}cqw) scale(${.94 + .06 * t})`;
+      c.style.pointerEvents = t > .9 ? 'auto' : 'none';
     });
-    const s = f < 70 ? 0 : f < 150 ? 1 : 2;
-    dots.forEach((d, k) => d.classList.toggle('on', k === s));
+    const d = dotOf(f), s = secOf(f);
+    dots.forEach((el, k) => el.classList.toggle('on', k === d));
+    navLinks.forEach(a => a.classList.toggle('on', +a.dataset.sec === s));
   }
-  function onScroll() {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    target = clamp(scrollY / max, 0, 1) * (N - 1);
+
+  /* ---------------- phone ---------------- */
+  const mq = matchMedia('(max-width:760px), (max-aspect-ratio:4/5)');
+  const mcv = document.getElementById('mcv'), mctx = mcv.getContext('2d', { alpha: false });
+  const msecs = [...document.querySelectorAll('.m-sec')], mdots = [...document.querySelectorAll('.m-dots i')];
+  const mchips = [...document.querySelectorAll('.m-card')], mmake = document.getElementById('mmake');
+  const CX = [[0,.52],[48,.53],[70,.60],[104,.64],[136,.66],[160,.58],[200,.53],[238,.53]];
+  const lerpKF = (K, f) => { for (let k = 0; k < K.length - 1; k++) { const [a, va] = K[k], [b, vb] = K[k + 1];
+    if (f >= a && f <= b) { const t = (f - a) / (b - a); return va + (vb - va) * t * t * (3 - 2 * t); } } return K[K.length - 1][1]; };
+  let mSec = -1;
+  function drawMobile(f) {
+    const w = mcv.clientWidth, h = mcv.clientHeight;
+    const changed = sizeCanvas(mcv, w, h);
+    const [IW, IH] = dims(), ca = mcv.width / mcv.height;
+    let sh = IH * 0.94, sw = sh * ca; if (sw > IW) { sw = IW; sh = sw / ca; }
+    const sx = clamp(lerpKF(CX, f) * IW - sw / 2, 0, IW - sw), sy = clamp(IH * 0.06, 0, IH - sh);
+    if (changed || dirty || Math.abs(f - lastF) > 0.003) paint(mctx, f, sx, sy, sw, sh, mcv.width, mcv.height);
+    const sec = secOf(f);
+    if (sec !== mSec) { msecs.forEach((el, k) => el.classList.toggle('on', k === sec)); mSec = sec; }
+    mdots.forEach((el, k) => el.classList.toggle('on', k === dotOf(f)));
+    const m = ease(clamp((f - 176) / 16, 0, 1));
+    mmake.style.opacity = m; mmake.style.transform = `translateY(${(1 - m) * 14}px)`;
+    const kx = w / sw, ky = h / sh;
+    const toX = x => ((x / 100 - .011875) / .97 * IW - sx) * kx;
+    const toY = y => ((y / 100 - .012) / .978 * IH - sy) * ky;
+    const fs = .014 * (IW / .97) * kx;
+    mchips.forEach(c => {
+      const [x, y, cw, ch] = c.dataset.r.split(',').map(Number);
+      const t = ease(clamp((f - 184 - (+c.dataset.d) * 3.5) / 13, 0, 1));
+      const cwPx = toX(x + cw) - toX(x), lx = clamp(toX(x), 8, w - 8 - cwPx);
+      c.style.left = lx + 'px'; c.style.top = toY(y) + 'px'; c.style.width = cwPx + 'px'; c.style.height = (toY(y + ch) - toY(y)) + 'px';
+      c.style.fontSize = fs + 'px'; c.style.opacity = t; c.style.transform = `translateY(${(1 - t) * 14}px) scale(${.94 + .06 * t})`;
+    });
   }
-  function tick() {
-    cur += (target - cur) * 0.14;
-    if (Math.abs(target - cur) < 0.01) cur = target;
-    draw(cur);
-    requestAnimationFrame(tick);
+
+  /* ---------------- loop: time-based smoothing, sleeps when idle ---------------- */
+  const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  function onScroll() { target = clamp(scrollY / maxScroll(), 0, 1) * (N - 1); wake(); }
+  let raf = 0, last = 0;
+  function frame(now) {
+    raf = 0;
+    const dt = Math.min(64, now - (last || now)); last = now;
+    const k = reduce ? 1 : 1 - Math.exp(-dt / 85);         // ~85ms time constant, independent of refresh rate
+    cur += (target - cur) * k;
+    if (Math.abs(target - cur) < 0.004) cur = target;
+    warm(cur);
+    (mq.matches ? drawMobile : drawDesktop)(cur);
+    lastF = cur; dirty = false;
+    if (cur !== target || bmpBusy || active) wake(); else last = 0;
   }
+  function wake() { if (!raf) raf = requestAnimationFrame(frame); }
   addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', () => { lastDrawn = -1; mLast = -1; onScroll(); });
-  onScroll(); tick();
-  document.querySelectorAll('a[href="#"]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+  addEventListener('resize', () => { dirty = true; onScroll(); });
+  mq.addEventListener && mq.addEventListener('change', () => { dirty = true; mSec = -1; wake(); });
+  // repaint as soon as new frames arrive
+  setInterval(() => { if (dirty) wake(); }, 120);
+  onScroll();
+
+  /* ---------------- navigation ---------------- */
+  const goFrame = f => { scrollTo({ top: f / (N - 1) * maxScroll(), behavior: reduce ? 'auto' : 'smooth' }); };
+  const menu = document.getElementById('menu');
+  const openMenu = () => { menu.classList.add('open'); menu.setAttribute('aria-hidden', 'false'); };
+  const closeMenu = () => { menu.classList.remove('open'); menu.setAttribute('aria-hidden', 'true'); };
+  document.querySelectorAll('[data-open-menu]').forEach(b => b.addEventListener('click', openMenu));
+  document.getElementById('mclose').addEventListener('click', closeMenu);
+  addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-go]');
+    if (el) { e.preventDefault(); closeMenu(); goFrame(+el.dataset.go); return; }
+    const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault();
+  });
 })();
 </script>
 </body>
