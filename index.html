@@ -162,6 +162,22 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
 .btn.dark:hover,.cta:hover{background:#3a2f27}
 .btn b{transition:transform .2s}.btn:hover b{transform:translateX(3px)}
 @media (prefers-reduced-motion:reduce){ .menu-ov,.menu-ov a,#loader,.m-sec{transition:none!important} }
+
+/* text, buttons and nav lifted straight from the video (exact letterforms); the HTML underneath stays for links & screen readers */
+.gl{position:absolute;display:block;height:auto;pointer-events:none;user-select:none}
+#layer > :not(.gl):not(.arrow){opacity:0}
+#stage .logo{opacity:0}
+#stage .navbg{display:none}   /* the video has no bar behind the nav: content passes under it */
+#stage .nav a,#stage .cta{color:transparent!important;background:transparent!important}
+#stage .nav a.on::after{background:transparent}
+
+/* text scrolling up under the header fades to ~18% like in the video (the image itself is not affected) */
+#layerwrap{position:absolute;inset:0;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.18) 0,rgba(0,0,0,.18) 8.5%,#000 9.3%);
+          mask-image:linear-gradient(to bottom,rgba(0,0,0,.18) 0,rgba(0,0,0,.18) 8.5%,#000 9.3%)}
+
+/* objects that pass in front of the text in the video (machine arm, espresso, beans) */
+#stage #ocv{position:absolute;left:1.19%;top:1.2%;width:97%;height:97.8%;pointer-events:none}
 </style>
 </head>
 <body>
@@ -225,7 +241,24 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
   <canvas id="cv"></canvas>
   <div id="space">
 
+    <div id="layerwrap">
     <div id="layer">
+      <img class="gl" src="glyphs/eyebrow.webp" alt="" aria-hidden="true" style="left:9.875%;top:16.250%;width:13.688%">
+      <img class="gl" src="glyphs/h_wake.webp" alt="" aria-hidden="true" style="left:10.000%;top:20.950%;width:28.438%">
+      <img class="gl" src="glyphs/p_wake.webp" alt="" aria-hidden="true" style="left:10.125%;top:59.950%;width:25.375%">
+      <img class="gl" src="glyphs/b_wake.webp" alt="" aria-hidden="true" style="left:9.938%;top:70.350%;width:12.312%">
+      <img class="gl" src="glyphs/cdots.webp" alt="" aria-hidden="true" style="left:47.875%;top:83.550%;width:4.312%">
+      <img class="gl" src="glyphs/two.webp" alt="" aria-hidden="true" style="left:9.750%;top:101.050%;width:3.625%">
+      <img class="gl" src="glyphs/l_bloom.webp" alt="" aria-hidden="true" style="left:9.750%;top:109.050%;width:9.500%">
+      <img class="gl" src="glyphs/h_bloom.webp" alt="" aria-hidden="true" style="left:9.750%;top:113.650%;width:25.688%">
+      <img class="gl" src="glyphs/p_bloom.webp" alt="" aria-hidden="true" style="left:9.812%;top:138.150%;width:25.562%">
+      <img class="gl" src="glyphs/b_bloom.webp" alt="" aria-hidden="true" style="left:9.562%;top:148.350%;width:12.000%">
+      <img class="gl" src="glyphs/h_fol.webp" alt="" aria-hidden="true" style="left:9.562%;top:166.150%;width:18.188%">
+      <img class="gl" src="glyphs/p_fol.webp" alt="" aria-hidden="true" style="left:9.562%;top:177.850%;width:25.938%">
+      <img class="gl" src="glyphs/b_fol.webp" alt="" aria-hidden="true" style="left:9.312%;top:187.650%;width:12.375%">
+      <img class="gl" src="glyphs/l_sip.webp" alt="" aria-hidden="true" style="left:9.250%;top:216.550%;width:3.812%">
+      <img class="gl" src="glyphs/h_sip.webp" alt="" aria-hidden="true" style="left:9.250%;top:220.950%;width:26.125%">
+      <img class="gl" src="glyphs/p_sip.webp" alt="" aria-hidden="true" style="left:9.250%;top:237.550%;width:25.625%">
       <!-- 1. WAKE THE BEANS -->
       <div class="abs eyebrow" style="left:10.3%;top:16.4%">Wake the beans</div>
       <h1 class="abs big" style="left:10.1%;top:20.6%;font-size:8.6cqw;letter-spacing:-.025em;line-height:.89">Wake<br>The<br>Beans</h1>
@@ -267,8 +300,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
       
     </div>
 
+    </div>
+    <canvas id="ocv"></canvas>
     <!-- NAV -->
     <div class="abs navbg"></div>
+    <img class="gl" src="glyphs/logo.webp" data-nav="1" alt="" aria-hidden="true" style="left:5.875%;top:3.100%;width:14.188%">
+    <img class="gl" src="glyphs/nav.webp" data-nav="1" alt="" aria-hidden="true" style="left:34.188%;top:3.100%;width:59.250%">
     <a href="#" data-go="0" class="abs logo">POUR / PLAY</a>
     <nav class="abs nav">
       <a href="#" class="on" data-go="0" data-sec="0" style="left:34.6%">Home</a>
@@ -398,16 +435,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
   // parallax input: mouse on desktop (smoothed), scroll velocity on phones
   const PAR = { mx: 0, my: 0, tx: 0, ty: 0, vel: 0, off: [0, 0], moving: false };
   const OFF_MAX = 0.011;                // subtle: ~8px for near objects on a 1600px screen
+  // depth follows the mouse while it moves, then glides back so the resting frame matches the video exactly
+  let parLastMove = -1e9;
   addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return;
-    PAR.tx = (e.clientX / innerWidth - .5) * 2; PAR.ty = (e.clientY / innerHeight - .5) * 2; wake(); }, { passive: true });
+    PAR.tx = (e.clientX / innerWidth - .5) * 2; PAR.ty = (e.clientY / innerHeight - .5) * 2; parLastMove = performance.now(); wake(); }, { passive: true });
   document.addEventListener('mouseleave', () => { PAR.tx = PAR.ty = 0; wake(); });
   function updateParallax(dt, phone, dFrame) {
     if (reduce) { PAR.off = [0, 0]; PAR.moving = false; return; }
-    const k = 1 - Math.exp(-dt / 140);
+    const k = 1 - Math.exp(-dt / (PAR.tx || PAR.ty ? 140 : 420));   // quick to follow, slow & soft to settle
     if (phone) { PAR.tx = 0; PAR.ty = clamp(-dFrame * 0.9, -1, 1); }
+    else if (performance.now() - parLastMove > 900) { PAR.tx = 0; PAR.ty = 0; }
     PAR.mx += (PAR.tx - PAR.mx) * k; PAR.my += (PAR.ty - PAR.my) * k;
     const nx = PAR.mx * OFF_MAX, ny = PAR.my * OFF_MAX * 0.7;
-    PAR.moving = Math.abs(PAR.tx - PAR.mx) + Math.abs(PAR.ty - PAR.my) > 0.002;
+    PAR.moving = Math.abs(PAR.tx - PAR.mx) + Math.abs(PAR.ty - PAR.my) > 0.002 || (PAR.tx || PAR.ty);
     PAR.changed = Math.abs(nx - PAR.off[0]) + Math.abs(ny - PAR.off[1]) > 1e-5;
     PAR.off = [nx, ny];
   }
@@ -423,7 +463,11 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
   const dims = () => { const i = nearest(0); const im = imgs[i]; return im ? [im.naturalWidth, im.naturalHeight] : [1920, 1200]; };
 
   /* ---------------- shared state ---------------- */
-  const KF = [[0,0.0],[6,-0.002],[12,-0.002],[18,-0.002],[24,-0.002],[30,-0.002],[36,-0.002],[42,-0.007],[48,-0.078],[54,-0.16],[60,-0.221],[66,-0.307],[72,-0.431],[78,-0.583],[84,-0.721],[90,-0.77],[96,-0.78],[102,-0.783],[108,-0.783],[114,-0.876],[120,-1.099],[126,-1.244],[132,-1.281],[138,-1.292],[144,-1.397],[150,-1.575],[156,-1.735],[162,-1.852],[168,-1.928],[174,-1.973],[180,-1.996],[186,-2.005],[192,-2.01],[198,-2.01],[204,-2.01],[210,-2.01],[216,-2.01],[222,-2.01],[228,-2.01],[234,-2.01],[238,-2.01]];   // measured from the video (text-column shift per frame)
+  // text-layer position measured in every video frame (sub-pixel): y in screen heights, x in px of a 1600px screen
+  const KY = [0.0,-0.00069,-0.00114,-0.00149,-0.00179,-0.00193,-0.00197,-0.00202,-0.00206,-0.00207,-0.00204,-0.00197,-0.00186,-0.00173,-0.0016,-0.0015,-0.00144,-0.00138,-0.0013,-0.00122,-0.00116,-0.00111,-0.00109,-0.00106,-0.00102,-0.00096,-0.0009,-0.00083,-0.00078,-0.00074,-0.00072,-0.0007,-0.00066,-0.0006,-0.00054,-0.00046,-0.00037,-0.0003,-0.00022,-9e-05,-0.00028,-0.00184,-0.00572,-0.01217,-0.02112,-0.03244,-0.04601,-0.06126,-0.07736,-0.09283,-0.10652,-0.11928,-0.13203,-0.14478,-0.15754,-0.17029,-0.18304,-0.1958,-0.20855,-0.2213,-0.23406,-0.24681,-0.25956,-0.27232,-0.28507,-0.29782,-0.31058,-0.32502,-0.34301,-0.36326,-0.38441,-0.40682,-0.43049,-0.45479,-0.47945,-0.50469,-0.53041,-0.55622,-0.5819,-0.60731,-0.63229,-0.65645,-0.67922,-0.70015,-0.71885,-0.73476,-0.7473,-0.7562,-0.76196,-0.76571,-0.76852,-0.77092,-0.773,-0.77482,-0.77652,-0.77803,-0.77921,-0.78016,-0.781,-0.78163,-0.782,-0.78214,-0.78207,-0.78198,-0.78192,-0.78182,-0.78163,-0.78135,-0.78134,-0.78492,-0.79484,-0.80782,-0.82344,-0.84563,-0.87424,-0.90736,-0.94355,-0.98157,-1.02045,-1.06252,-1.10647,-1.14244,-1.16909,-1.19328,-1.21746,-1.23926,-1.25569,-1.26763,-1.2767,-1.28348,-1.28838,-1.2913,-1.29244,-1.29262,-1.29249,-1.2924,-1.2934,-1.29708,-1.30413,-1.31444,-1.327,-1.34394,-1.36324,-1.38554,-1.41052,-1.43746,-1.46597,-1.4962,-1.52734,-1.55802,-1.58777,-1.61673,-1.64491,-1.67215,-1.69812,-1.72278,-1.74648,-1.76906,-1.79022,-1.81018,-1.8292,-1.84712,-1.86376,-1.87928,-1.89377,-1.90728,-1.91987,-1.93134,-1.94157,-1.9509,-1.95945,-1.96722,-1.97428,-1.9806,-1.98622,-1.98718,-1.98356,-1.98349,-1.98704,-1.99022,-1.99306,-1.99562,-1.9979,-1.99985,-2.00144,-2.00287,-2.00426,-2.00556,-2.00664,-2.00752,-2.00835,-2.00907,-2.0095,-2.00961,-2.00958,-2.00955,-2.00954,-2.00951,-2.00946,-2.00944,-2.0095,-2.00963,-2.00964,-2.00949,-2.00944,-2.00954,-2.00967,-2.00976,-2.00977,-2.0098,-2.01,-2.01018,-2.01019,-2.01019,-2.01032,-2.01048,-2.0106,-2.01066,-2.0106,-2.01054,-2.0106,-2.01071,-2.01078,-2.01083,-2.01091,-2.011,-2.01111,-2.01122,-2.01131,-2.01138,-2.01145,-2.01156,-2.01166,-2.01173,-2.01182,-2.01192,-2.01202,-2.01214,-2.01226];
+  const KX = [0.0,0.24,0.37,0.36,0.45,0.61,0.74,0.8,0.8,0.78,0.76,0.76,0.77,0.79,0.84,0.92,0.97,1.0,1.03,1.06,1.09,1.13,1.16,1.18,1.2,1.23,1.27,1.29,1.31,1.34,1.39,1.4,1.4,1.39,1.35,1.33,1.34,1.41,1.48,1.45,1.36,1.35,1.36,1.3,1.13,0.89,0.61,0.34,0.14,-0.04,-0.2,-0.34,-0.48,-0.62,-0.77,-0.91,-1.05,-1.19,-1.33,-1.47,-1.61,-1.75,-1.89,-2.04,-2.18,-2.32,-2.46,-2.6,-2.77,-2.9,-2.84,-2.85,-3.01,-2.87,-2.59,-2.43,-2.27,-2.15,-2.04,-1.97,-2.02,-2.03,-1.88,-1.82,-1.84,-1.84,-1.8,-1.6,-1.33,-1.1,-0.87,-0.7,-0.59,-0.46,-0.28,-0.14,-0.15,-0.15,0.0,0.18,0.25,0.21,0.14,0.11,0.08,0.03,-0.08,-0.22,-0.29,-0.34,-0.55,-0.84,-1.21,-1.63,-2.08,-2.71,-3.47,-4.38,-5.27,-4.36,-1.61,-0.3,-0.52,-0.7,-0.89,-1.03,-1.04,-0.93,-0.81,-0.73,-0.7,-0.7,-0.67,-0.64,-0.6,-0.59,-0.68,-0.67,-0.51,-0.28,-0.0,0.44,0.62,0.64,0.84,1.3,1.56,1.74,1.84,1.8,1.66,1.5,1.62,1.76,1.72,1.7,1.69,1.66,1.66,1.88,2.37,2.68,2.69,2.72,2.82,2.89,2.86,2.84,3.04,3.37,3.55,3.58,3.62,3.63,3.58,3.21,2.53,2.2,2.2,2.22,2.24,2.19,2.15,2.12,2.06,1.96,1.86,1.8,1.72,1.62,1.52,1.45,1.42,1.34,1.23,1.17,1.14,1.09,1.0,0.94,0.92,0.89,0.72,0.49,0.34,0.3,0.31,0.3,0.11,-0.11,0.0,0.15,-0.15,-0.48,-0.5,-0.39,-0.41,-0.55,-0.78,-0.98,-1.05,-1.08,-1.22,-1.36,-1.45,-1.55,-1.62,-1.69,-1.81,-1.92,-1.98,-2.04,-2.12,-2.2,-2.24,-2.3,-2.4,-2.46,-2.52];
+  const KF = KY.map((v, i) => [i, v]);
+  const kxAt = f => { const a = Math.max(0, Math.min(KX.length - 2, Math.floor(f))), t = Math.min(1, Math.max(0, f - a)); return KX[a] + (KX[a + 1] - KX[a]) * t; };
   const offAt = f => { for (let k = 0; k < KF.length - 1; k++) { const [a, oa] = KF[k], [b, ob] = KF[k + 1];
     if (f >= a && f <= b) { const t = (f - a) / (b - a); return oa + (ob - oa) * t; } } return KF[KF.length - 1][1]; };
   const secOf = f => f < 70 ? 0 : f < 122 ? 1 : f < 160 ? 2 : 3;
@@ -451,14 +495,47 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
       paint(ctx, f, 0, 0, IW, IH, cv.width, cv.height);
     }
     const [tx, ty] = layerShift(0.62, cv.clientWidth, cv.clientHeight);
-    layer.style.transform = `translate3d(${tx.toFixed(2)}px,${(offAt(f) * space.clientHeight + ty).toFixed(2)}px,0)`;
+    layer.style.transform = `translate3d(${(tx + kxAt(f) * space.clientWidth / 1600).toFixed(2)}px,${(offAt(f) * space.clientHeight + ty).toFixed(2)}px,0)`;
     make.style.opacity = sec3.style.opacity = 0;
     cards.forEach(c => { c.style.opacity = 0; c.style.pointerEvents = f > 200 ? 'auto' : 'none'; });
+    { const i = Math.max(0, Math.min(NAVX.length - 1, Math.round(f))), k1 = space.clientWidth / 1600;
+      navGl.forEach(g => g.style.transform = `translate(${(NAVX[i] * k1).toFixed(2)}px,${(NAVY[i] * k1).toFixed(2)}px)`); }
+    if (Math.abs(PAR.off[0]) + Math.abs(PAR.off[1]) < 2e-4) { ocv.style.visibility = 'visible'; drawObjects(f); } else ocv.style.visibility = 'hidden';
     const d = dotOf(f), s = secOf(f);
     dots.forEach((el, k) => el.classList.toggle('on', k === d));
     navLinks.forEach(a => a.classList.toggle('on', +a.dataset.sec === s));
   }
 
+  const NAVX = [0.0,0.24,0.18,0.2,0.19,0.16,0.11,0.2,0.24,0.26,0.26,0.24,0.21,0.17,0.13,0.11,0.13,0.16,0.2,0.11,0.05,-0.02,-0.05,-0.08,0.01,0.09,0.13,0.05,-0.05,-0.1,-0.15,-0.19,-0.17,-0.16,-0.22,-0.3,-0.35,-0.38,-0.37,-0.36,-0.35,-0.33,-0.34,-0.4,-0.43,-0.45,-0.53,-0.59,-0.61,-0.64,-0.73,-0.79,-0.83,-0.88,-0.91,-0.93,-0.94,-1.02,-1.09,-1.17,-1.2,-1.26,-1.26,-1.32,-1.38,-1.46,-1.54,-1.64,-1.7,-1.81,-1.91,-1.99,-2.08,-2.16,-2.19,-2.21,-2.22,-2.22,-2.22,-2.26,-2.31,-2.36,-2.43,-2.49,-2.53,-2.58,-2.68,-2.81,-2.9,-3.01,-3.15,-3.21,-3.27,-3.38,-3.48,-3.48,-3.51,-3.57,-3.61,-3.65,-3.72,-3.82,-3.85,-3.89,-3.96,-4.02,-4.08,-4.15,-4.19,-4.23,-4.26,-4.29,-4.35,-4.4,-4.51,-4.63,-4.78,-4.94,-5.09,-5.25,-5.4,-5.55,-5.7,-5.86,-6.03,-6.23,-6.24,-6.26,-6.27,-6.26,-6.17,-6.26,-6.31,-6.36,-6.42,-6.54,-6.64,-6.73,-6.84,-6.94,-7.01,-7.12,-7.25,-7.34,-7.45,-7.56,-7.66,-7.73,-7.86,-7.95,-8.07,-8.18,-8.27,-8.35,-8.41,-8.46,-8.5,-8.55,-8.59,-8.69,-8.79,-8.89,-9.01,-9.12,-9.2,-9.3,-9.39,-9.45,-9.59,-9.7,-9.76,-9.85,-9.95,-9.98,-10.03,-10.09,-10.13,-10.18,-10.27,-10.34,-10.36,-10.44,-10.5,-10.51,-10.53,-10.59,-10.62,-10.59,-10.62,-10.67,-10.71,-10.74,-10.84,-10.89,-10.96,-11.09,-11.25,-11.4,-11.53,-11.66,-11.73,-11.77,-11.84,-11.94,-12.0,-12.07,-12.2,-12.31,-12.43,-12.56,-12.66,-12.72,-12.8,-12.87,-12.98,-13.08,-13.16,-13.28,-13.4,-13.48,-13.63,-13.77,-13.89,-14.0,-14.08,-14.21,-14.35,-14.5,-14.67,-14.82,-14.89,-14.99,-15.03,-15.03,-15.11,-15.17,-15.12,-15.26,-14.88], NAVY = new Array(NAVX.length).fill(0);
+  const navGl = [...document.querySelectorAll('img[data-nav]')];
+
+  /* ---------------- objects in front of the text (masked copy of the current frame) ---------------- */
+  const ocv = document.getElementById('ocv'), octx = ocv.getContext('2d');
+  const omAtlas = [];
+  for (let a = 0; a < Math.ceil(N / 16); a++) { const im = new Image(); im.decoding = 'async'; im.src = 'objmask/' + String(a).padStart(2, '0') + '.webp';
+    im.onload = () => { im._ok = true; dirty = true; wake(); }; omAtlas.push(im); }
+  const omTmp = document.createElement('canvas'); omTmp.width = 480; omTmp.height = 300; const omTctx = omTmp.getContext('2d', { willReadFrequently: true });
+  let omKey = '';
+  function drawObjects(f) {
+    sizeCanvas(ocv, ocv.clientWidth, ocv.clientHeight);
+    const fr = Math.max(0, Math.min(N - 1, Math.round(f))), at = omAtlas[Math.floor(fr / 16)];
+    const fi = Math.round(toI(f)), img = usable(fi);
+    const key = fi + ocv._k + (at && at._ok) + PAR.off.join();
+    if (key === omKey && !dirty) return; omKey = key;
+    octx.globalCompositeOperation = 'source-over'; octx.clearRect(0, 0, ocv.width, ocv.height);
+    if (!at || !at._ok || !img) return;
+    const t = fr % 16;
+    omTctx.clearRect(0, 0, 480, 300); omTctx.drawImage(at, (t % 4) * 480, Math.floor(t / 4) * 300, 480, 300, 0, 0, 480, 300);
+    // luminance mask -> alpha
+    const d = omTctx.getImageData(0, 0, 480, 300), px = d.data; let any = false;
+    for (let i = 0; i < px.length; i += 4) { const v = px[i]; px[i + 3] = v; if (v > 8) any = true; }
+    if (!any) return;
+    omTctx.putImageData(d, 0, 0);
+    octx.drawImage(img, 0, 0, ocv.width, ocv.height);
+    octx.globalCompositeOperation = 'destination-in';
+    octx.drawImage(omTmp, 0, 0, ocv.width, ocv.height);
+    octx.globalCompositeOperation = 'source-over';
+  }
   /* ---------------- phone ---------------- */
   const mq = matchMedia('(max-width:760px), (max-aspect-ratio:4/5)');
   const mcv = document.getElementById('mcv'), mctx = makePainter(mcv);
